@@ -11,9 +11,8 @@ Un juego de damas implementado en Python que utiliza autómatas finitos para la 
 ## Características del Juego
 
 - Tablero 8x8
-- Validación automática
+- Validación de jugadas
 - Capturas múltiples
-- Sistema de coronación
 
 ## Instalación y Ejecución
 
@@ -65,10 +64,10 @@ Las jugadas se ingresan en el formato: `ColumnaOrigenFilaOrigen-ColumnaDestinoFi
 
 ### Representación de Fichas
 
-- `○` / `n`: Fichas negras normales
-- `●` / `b`: Fichas blancas normales
-- `N`: Dama negra (coronada)
-- `B`: Dama blanca (coronada)
+- `○`: Fichas negras normales
+- `●`: Fichas blancas normales
+- `♕`: Dama negra (coronada)
+- `♔`: Dama blanca (coronada)
 - `·` / `-`: Casilla vacía
 
 ### Turnos
@@ -76,10 +75,3 @@ Las jugadas se ingresan en el formato: `ColumnaOrigenFilaOrigen-ColumnaDestinoFi
 - Las **fichas blancas** siempre inician
 - Los turnos se alternan automáticamente
 - El juego indica qué color debe mover
-
-## Reglas
-
-2. **Las capturas múltiples se ejecutan automáticamente**
-3. **Las piezas coronadas tienen libertad total de movimiento**
-4. **El juego termina cuando un jugador no tiene fichas**
-5. **La coronación es automática** al alcanzar la fila opuesta

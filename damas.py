@@ -16,21 +16,6 @@ movimientoValido = True
 jugador = 'n'
 
 def crear_automata_captura():
-    """
-    Crea un DFA que reconoce patrones válidos de captura de fichas.
-    Estados: 
-    - 'inicio': estado inicial
-    - 'ficha_propia': hay una ficha propia en posición origen
-    - 'ficha_enemiga': hay una ficha enemiga en el medio
-    - 'captura_valida': captura válida (estado final)
-    - 'invalido': movimiento inválido
-    
-    Símbolos de entrada:
-    - 'P': ficha propia en origen
-    - 'E': ficha enemiga en medio  
-    - 'V': casilla vacía en destino
-    - 'O': obstáculo o error
-    """
     return DFA(
         states={'inicio', 'ficha_propia', 'ficha_enemiga', 'captura_valida', 'invalido'},
         input_symbols={'P', 'E', 'V', 'O'},
@@ -143,10 +128,7 @@ def moValido(jugada, colorJugador):
                 abs(movDesCol - movOriCol) == abs(movDesRow - movOriRow)):
             print('Las fichas solo se mueven diagonalmente 1 o 2 casillas')
             return False
-        
-        # Verificar dirección correcta solo para fichas normales (no coronadas)
-        # Las fichas coronadas (mayúsculas) pueden moverse en cualquier dirección
-        if ficha.islower():  # Solo aplicar restricciones a fichas normales (minúsculas)
+        if ficha.islower(): 
             if abs(movDesRow - movOriRow) == 1:
                 # Movimiento simple - solo hacia adelante para fichas normales
                 if ficha == 'n':  # Fichas negras se mueven hacia abajo (filas mayores)
@@ -159,7 +141,6 @@ def moValido(jugada, colorJugador):
                         return False
             
             elif abs(movDesRow - movOriRow) == 2:
-                # Movimiento de captura - solo hacia adelante para fichas normales (no damas)
                 if ficha == 'n':  # Fichas negras capturan hacia abajo
                     if movDesRow <= movOriRow:
                         print('Las fichas negras solo pueden capturar hacia adelante (hacia abajo)')
@@ -187,12 +168,10 @@ def validar_captura_con_automata(movOriRow: int, movOriCol: int, movDesRow: int,
         if abs(movDesRow - movOriRow) != abs(movDesCol - movOriCol):
             return False
         
-        # Debe haber exactamente una ficha enemiga en el camino
         distancia = abs(movDesRow - movOriRow)
         if distancia < 2:
             return False
             
-        # Determinar dirección
         dir_row = 1 if movDesRow > movOriRow else -1
         dir_col = 1 if movDesCol > movOriCol else -1
         
@@ -210,18 +189,14 @@ def validar_captura_con_automata(movOriRow: int, movOriCol: int, movDesRow: int,
                     fichas_enemigas_encontradas += 1
                     ficha_enemiga_pos = (check_row, check_col)
                 else:
-                    # Hay una ficha propia en el camino
                     return False
         
-        # Debe haber exactamente una ficha enemiga para capturar
         if fichas_enemigas_encontradas != 1:
             return False
             
-        # El destino debe estar vacío
         return tablero[movDesRow][movDesCol] == '-'
     
     else:
-        # Para fichas normales, verificar que es un movimiento de exactamente 2 casillas diagonal
         if abs(movDesRow - movOriRow) != 2 or abs(movDesCol - movOriCol) != 2:
             return False
     
@@ -370,8 +345,6 @@ def procesar_captura_temporal(movOriRow, movOriCol, nuevaRow, nuevaCol, ficha_ca
     tablero[nuevaRow][nuevaCol] = ficha_destino_original
 
 def finalizar_capturas_multiples(capturas_posibles):
-    """Función auxiliar para finalizar el procesamiento de capturas múltiples"""
-    # Ordenar por longitud de secuencia (más capturas primero) para priorizar secuencias más largas
     capturas_posibles.sort(key=len, reverse=True)
     return capturas_posibles
 
@@ -501,7 +474,6 @@ def moverFicha(jugada, colorJugada):
                         ficha_capturada_col = check_col
                         break
             else:
-                # Para fichas normales o capturas de 2 casillas
                 ficha_capturada_row = (movOriRow + movDesRow) // 2
                 ficha_capturada_col = (movOriCol + movDesCol) // 2
             
@@ -509,19 +481,16 @@ def moverFicha(jugada, colorJugada):
                 # Realizar la captura
                 tablero[movDesRow][movDesCol] = fichaOrigen
                 tablero[movOriRow][movOriCol] = '-'
-                tablero[ficha_capturada_row][ficha_capturada_col] = '-'  # Eliminar ficha capturada
+                tablero[ficha_capturada_row][ficha_capturada_col] = '-'  
                 coordenadasFicha = str(movDesRow) + str(movDesCol)
                 
                 print(f'¡Ficha capturada en {chr(65 + ficha_capturada_col)}{8 - ficha_capturada_row}!')
                 
-                # Verificar si hay capturas múltiples disponibles y ejecutarlas automáticamente
                 fichas_ya_capturadas = {(ficha_capturada_row, ficha_capturada_col)}
                 capturas_adicionales = obtener_capturas_multiples(movDesRow, movDesCol, colorJugada, fichas_ya_capturadas)
                 
                 if capturas_adicionales:
-                    print("¡Capturas múltiples detectadas! Ejecutando automáticamente...")
-                    
-                    # Ejecutar todas las capturas múltiples automáticamente
+                    print("Ejecutando capturas multiples!")
                     posicion_final_row, posicion_final_col, total_capturas = ejecutar_captura_multiple_automatica(
                         movDesRow, movDesCol, colorJugada, fichas_ya_capturadas
                     )
@@ -552,7 +521,7 @@ def moverFicha(jugada, colorJugada):
 def imprimirTablero():
     print("\n  +---+---+---+---+---+---+---+---+")
     for i in range(8):
-        fila_num = 8 - i  # Para mostrar desde la fila 8 hasta la 1
+        fila_num = 8 - i  
         print(f"{fila_num} |", end="")
         
         for j in range(8):
@@ -573,9 +542,6 @@ def imprimirTablero():
     print("    A   B   C   D   E   F   G   H")
 
 def comprobarVictoria():
-    """
-    Comprueba si ha finalizado la partida
-    """
     hayNegras = False
     hayBlancas = False
     for i in tablero:
