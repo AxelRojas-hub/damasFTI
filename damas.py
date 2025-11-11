@@ -15,6 +15,10 @@ letras = {"A": 0, "B": 1, "C": 2, "D": 3, "E": 4, "F": 5, "G": 6, "H": 7}
 movimientoValido = True
 jugador = 'n'
 
+# Contadores simples: solo números de capturas por jugador
+capturas_blanca_count: int = 0
+capturas_negra_count: int = 0
+
 def crear_automata_captura():
     return DFA(
         states={'inicio', 'ficha_propia', 'ficha_enemiga', 'captura_valida', 'invalido'},
@@ -366,6 +370,9 @@ def ejecutar_captura_multiple_automatica(movDesRow: int, movDesCol: int, colorJu
     
     posicion_actual_row, posicion_actual_col = movDesRow, movDesCol
     
+    # permitir actualizar contadores globales de capturas
+    global capturas_blanca_count, capturas_negra_count
+
     for i, captura in enumerate(mejor_secuencia):
         origen_row, origen_col, destino_row, destino_col = captura
         
@@ -380,12 +387,20 @@ def ejecutar_captura_multiple_automatica(movDesRow: int, movDesCol: int, colorJu
             ficha_cap_row = (origen_row + destino_row) // 2
             ficha_cap_col = (origen_col + destino_col) // 2
             
-            # Realizar la captura
+            # Realizar la captura (registrar la ficha capturada antes de borrarla)
             ficha_movida = tablero[origen_row][origen_col]
+            ficha_capturada = tablero[ficha_cap_row][ficha_cap_col]
+
             tablero[destino_row][destino_col] = ficha_movida
             tablero[origen_row][origen_col] = '-'
             tablero[ficha_cap_row][ficha_cap_col] = '-'
-            
+
+            # incrementar contador correspondiente
+            if ficha_capturada.lower() == 'n':
+                capturas_blanca_count += 1
+            elif ficha_capturada.lower() == 'b':
+                capturas_negra_count += 1
+
             capturas_realizadas += 1
             posicion_actual_row, posicion_actual_col = destino_row, destino_col
             
@@ -410,6 +425,8 @@ def moverFicha(jugada, colorJugada):
     movDesRow = 8 - int(jugada[3])
     movDesCol = letras[jugada[2].upper()]
     coordenadasFicha = ''
+    # Necesario para actualizar contadores globales cuando ocurra una captura
+    global capturas_blanca_count, capturas_negra_count
 
     fichaOrigen = tablero[movOriRow][movOriCol]
     fichaDestino = tablero[movDesRow][movDesCol]
@@ -478,14 +495,23 @@ def moverFicha(jugada, colorJugada):
                 ficha_capturada_col = (movOriCol + movDesCol) // 2
             
             if ficha_capturada_row is not None and ficha_capturada_col is not None:
+                # Registrar la ficha capturada antes de modificar el tablero
+                ficha_capturada = tablero[ficha_capturada_row][ficha_capturada_col]
+
                 # Realizar la captura
                 tablero[movDesRow][movDesCol] = fichaOrigen
                 tablero[movOriRow][movOriCol] = '-'
-                tablero[ficha_capturada_row][ficha_capturada_col] = '-'  
+                tablero[ficha_capturada_row][ficha_capturada_col] = '-'
                 coordenadasFicha = str(movDesRow) + str(movDesCol)
-                
+
+                # Incrementar el contador correspondiente (solo cuando ya se confirmó la captura)
+                if ficha_capturada.lower() == 'n':
+                    capturas_blanca_count += 1
+                elif ficha_capturada.lower() == 'b':
+                    capturas_negra_count += 1
+
                 print(f'¡Ficha capturada en {chr(65 + ficha_capturada_col)}{8 - ficha_capturada_row}!')
-                
+
                 fichas_ya_capturadas = {(ficha_capturada_row, ficha_capturada_col)}
                 capturas_adicionales = obtener_capturas_multiples(movDesRow, movDesCol, colorJugada, fichas_ya_capturadas)
                 
@@ -570,10 +596,14 @@ while movimientoValido:
 
     if (jugador == 'n'):
         jugador = 'b'
+        # Mostrar contadores de capturas antes de pedir la jugada
+        print(f"Capturas - Blancas: {capturas_blanca_count}  |  Negras: {capturas_negra_count}")
         movimiento = input('Mueven las blancas: ')
 
     else:
         jugador = 'n'
+        # Mostrar contadores de capturas antes de pedir la jugada
+        print(f"Capturas - Blancas: {capturas_blanca_count}  |  Negras: {capturas_negra_count}")
         movimiento = input('Mueven las negras: ')
 
     if moValido(movimiento, jugador):

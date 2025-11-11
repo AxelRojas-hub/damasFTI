@@ -2,10 +2,11 @@
 
 Un juego de damas implementado en Python que utiliza autómatas finitos para la validación de capturas y soporta todas las reglas clásicas del juego.
 
+## Link a Github
+https://github.com/AxelRojas-hub/damasFTI
 ## Integrantes del Proyecto
 
 - **Ana Botha**
-- **Nadin González**
 - **Axel Rojas**
 
 ## Características del Juego
